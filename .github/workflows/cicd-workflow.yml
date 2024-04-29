@@ -47,7 +47,7 @@ jobs:
       - name: Check if package.json has changed
         id: npm_changed
         run: |
-          if [ "$(git log --pretty=format:'' | wc -l)" -gt 0 ] && [ "$(git diff --name-only HEAD^ HEAD -- | grep package.json)" ]; then
+          if [ -n "$(git diff --name-only --diff-filter=AMR HEAD^ HEAD | grep '^package.json$')" ]; then
             echo "NPM packages changed"
           else
             echo "No changes detected"
