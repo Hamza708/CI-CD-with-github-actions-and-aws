@@ -44,5 +44,5 @@ jobs:
 
       - name: Run Docker Compose
         run: |
-          cd /githubAction-CICD
+          cd /home/ubuntu/actions-runner/_work/githubAction-CICD/githubAction-CICD
           docker-compose up -d
