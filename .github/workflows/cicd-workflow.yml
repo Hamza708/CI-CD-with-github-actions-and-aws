@@ -16,8 +16,18 @@ jobs:
           ref: development  # Specify the branch to clone
 
       # Install Docker and Docker Compose if not installed
+      - name: Check if Docker is installed
+        run: docker --version
+        continue-on-error: true
+        id: docker_installed
+
+      - name: Check if Docker Compose is installed
+        run: docker-compose --version
+        continue-on-error: true
+        id: docker_compose_installed
+
       - name: Install Docker if not installed
-        if: steps.npm_changed.outputs.npm_changed == 'NPM packages changed'
+        if: steps.docker_installed.outcome != 'success'
         run: |
           sudo apt-get update
           sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
@@ -27,11 +37,27 @@ jobs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
       - name: Install Docker Compose if not installed
-        if: steps.npm_changed.outputs.npm_changed == 'NPM packages changed'
+        if: steps.docker_compose_installed.outcome != 'success'
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+      # Check if package.json has changed
+      - name: Check if package.json has changed
+        id: npm_changed
+        run: |
+          if [ "$(git diff --name-only HEAD^ HEAD | grep package.json)" ]; then
+            echo "::set-output name=npm_changed::NPM packages changed"
+          else
+            echo "::set-output name=npm_changed::No changes detected"
+          fi
+
+      # Recreate nodemodules volume if NPM packages changed
+      - name: Recreate nodemodules volume if NPM packages changed
+        if: steps.npm_changed.outputs.npm_changed == 'NPM packages changed'
+        run: |
+          sudo docker volume rm githubaction-cicd_nodemodules
 
       # Build and start containers
       - name: Build and start containers
@@ -43,53 +69,5 @@ jobs:
 
 
 
-# name: Deploy to EC2 and Run Docker Compose
 
-# on:
-#   push:
-#     branches:
-#       - development  # Adjust this to the branch you want to trigger on
-
-# jobs:
-#   deploy:
-#     runs-on: self-hosted
-
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v2
-#         with:
-#           ref: development  # Specify the branch to clone
-
-#       - name: Check if Docker is installed
-#         run: docker --version
-#         continue-on-error: true
-#         id: docker_installed
-
-#       - name: Check if Docker Compose is installed
-#         run: docker-compose --version
-#         continue-on-error: true
-#         id: docker_compose_installed
-
-#       - name: Install Docker if not installed
-#         if: steps.docker_installed.outcome != 'success'
-#         run: |
-#           sudo apt-get update
-#           sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-#           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-#           sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-#           sudo apt-get update
-#           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-
-#       - name: Install Docker Compose if not installed
-#         if: steps.docker_compose_installed.outcome != 'success'
-#         run: |
-#           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-#           sudo chmod +x /usr/local/bin/docker-compose
-#           sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-
-#       - name: Run Docker Compose
-#         run: |
-#               cd /home/ubuntu/actions-runner/_work/githubAction-CICD/githubAction-CICD
-#               sudo docker-compose down --remove-orphans
-#               sudo docker-compose up -d --build
 
