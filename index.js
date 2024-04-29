@@ -2,7 +2,12 @@ import app from "./src/middleware/appRouteMiddlewares.js";
 
 
 app.get('/', (req, res) => {
-    res.json('Welcome To CI/CD..s')
+    res.json('Welcome To CI/CD..asdasdasdasds')
+})
+
+
+app.get('/abc', (req, res) => {
+    res.json('Welcome To CI/CD..gooi')
 })
 
 
