@@ -46,5 +46,5 @@ jobs:
         run: |
               cd /home/ubuntu/actions-runner/_work/githubAction-CICD/githubAction-CICD
               sudo docker-compose down --remove-orphans
-              sudo docker-compose up -d --build
+              sudo docker-compose up -d 
 
