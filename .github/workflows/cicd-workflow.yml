@@ -19,12 +19,18 @@ jobs:
       - name: Check for changes in npm packages
         id: npm_changed
         run: |
-          changed=$(git diff --name-only 397fd1a10133f0716047f699a50e38b80e9bf8f9 9193917923a9550435592684451b5ee1b8dd0b0d | grep -E '^package.json$|^package-lock.json$|^node_modules/')
-          if grep -q '"dependencies":' package.json; then
-            dependencies_changed=1
-          else
-            dependencies_changed=0
-          fi
+          changed=$(
+            git diff --name-only 397fd1a10133f0716047f699a50e38b80e9bf8f9 \
+              9193917923a9550435592684451b5ee1b8dd0b0d \
+            | grep -E '^package.json$|^package-lock.json$|^node_modules/')
+          
+          dependencies_changed=$(
+            if grep -q '"dependencies":' package.json; then
+              echo 1
+            else
+              echo 0
+            fi)
+          
           if [[ -n "$changed" || $dependencies_changed == 1 ]]; then
             echo "NPM packages or dependencies changed"
             echo "::set-output name=npm_changed::true"
