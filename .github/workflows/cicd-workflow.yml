@@ -19,14 +19,26 @@ jobs:
       - name: Check for changes in npm packages
         id: npm_changed
         run: |
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -qE '^package-lock.json$|^node_modules/' && echo "NPM packages changed" || echo "No changes in NPM packages"
-
-      # If npm packages changed, delete volumes
-      - name: Delete volumes if npm packages changed
-        if: steps.npm_changed.outputs.npm_changed == 'NPM packages changed'
+          changed=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -E '^package.json$|^package-lock.json$|^node_modules/')
+          if grep -q '"dependencies":' package.json; then
+            dependencies_changed=1
+          else
+            dependencies_changed=0
+          fi
+          if [[ -n $changed || $dependencies_changed == 1 ]]; then
+            echo "NPM packages or dependencies changed"
+          else
+            echo "No changes in NPM packages or dependencies"
+          fi
+          
+      # Stop and remove all containers if package.json changed
+      - name: Stop and remove all containers if package.json changed
+        if: steps.npm_changed.outputs.npm_changed == 'NPM packages or dependencies changed'
         run: |
-          cd /home/ubuntu/actions-runner/_work/githubAction-CICD/githubAction-CICD
-          sudo docker-compose down --volumes
+          sudo docker stop $(sudo docker ps -a -q) || true
+          sudo docker rm $(sudo docker ps -a -q) || true
+          sudo docker rmi $(sudo docker images -q) || true
+          sudo docker volume prune -f || true
 
       # Install Docker and Docker Compose if not installed
       - name: Install Docker if not installed
