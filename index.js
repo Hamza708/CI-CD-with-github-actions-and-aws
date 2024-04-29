@@ -5,7 +5,7 @@ import moment from "moment"
 app.get('/', (req, res) => {
 
     const currentDateTime = moment().format('MMMM Do YYYY, h:mm:ss a');
-    res.json(`Welcome To CI/CD......., Current Date and Time is ${currentDateTime}`);
+    res.json(`Welcome To CI/CD......., Current Date snd Time is ${currentDateTime}`);
 })
 
 
