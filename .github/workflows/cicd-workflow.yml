@@ -15,18 +15,37 @@ jobs:
         with:
           ref: development  # Specify the branch to clone
 
-      - name: Check if Docker is installed
-        run: docker --version
-        continue-on-error: true
-        id: docker_installed
+      # Check for changes in npm packages
+      - name: Check for changes in npm packages
+        id: npm_changed
+        run: |
+          changed=$(git diff --name-only 397fd1a10133f0716047f699a50e38b80e9bf8f9 9193917923a9550435592684451b5ee1b8dd0b0d | grep -E '^package.json$|^package-lock.json$|^node_modules/')
+          if grep -q '"dependencies":' package.json; then
+            dependencies_changed=1
+          else
+            dependencies_changed=0
+          fi
+          if [[ -n "$changed" || $dependencies_changed == 1 ]]; then
+            echo "NPM packages or dependencies changed"
+            echo "::set-output name=npm_changed::true"
+          else
+            echo "No changes in NPM packages or dependencies"
+            echo "::set-output name=npm_changed::false"
+          fi
 
-      - name: Check if Docker Compose is installed
-        run: docker-compose --version
-        continue-on-error: true
-        id: docker_compose_installed
+      
+      #  Stop and remove all containers if package.json changed
+      - name: Stop and remove all containers if package.json changed
+        if: steps.npm_changed.outputs.npm_changed == 'true'
+        run: |
+          sudo docker stop $(sudo docker ps -a -q) || true
+          sudo docker rm $(sudo docker ps -a -q) || true
+          sudo docker rmi $(sudo docker images -q) || true
+          sudo docker volume prune -f || true
 
+      # Install Docker and Docker Compose if not installed
       - name: Install Docker if not installed
-        if: steps.docker_installed.outcome != 'success'
+        if: steps.npm_changed.outputs.npm_changed == 'NPM packages changed'
         run: |
           sudo apt-get update
           sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
@@ -36,15 +55,69 @@ jobs:
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
       - name: Install Docker Compose if not installed
-        if: steps.docker_compose_installed.outcome != 'success'
+        if: steps.npm_changed.outputs.npm_changed == 'NPM packages changed'
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
           sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
-      - name: Run Docker Compose
+      # Build and start containers
+      - name: Build and start containers
         run: |
-              cd /home/ubuntu/actions-runner/_work/githubAction-CICD/githubAction-CICD
-              sudo docker compose down --remove-orphans
-              sudo docker compose up -d 
+          cd /home/ubuntu/actions-runner/_work/githubAction-CICD/githubAction-CICD
+          sudo docker-compose down --remove-orphans
+          sudo docker compose up -d
+
+
+
+
+# name: Deploy to EC2 and Run Docker Compose
+
+# on:
+#   push:
+#     branches:
+#       - development  # Adjust this to the branch you want to trigger on
+
+# jobs:
+#   deploy:
+#     runs-on: self-hosted
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+#         with:
+#           ref: development  # Specify the branch to clone
+
+#       - name: Check if Docker is installed
+#         run: docker --version
+#         continue-on-error: true
+#         id: docker_installed
+
+#       - name: Check if Docker Compose is installed
+#         run: docker-compose --version
+#         continue-on-error: true
+#         id: docker_compose_installed
+
+#       - name: Install Docker if not installed
+#         if: steps.docker_installed.outcome != 'success'
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+#           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+#           sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+#           sudo apt-get update
+#           sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+
+#       - name: Install Docker Compose if not installed
+#         if: steps.docker_compose_installed.outcome != 'success'
+#         run: |
+#           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#           sudo chmod +x /usr/local/bin/docker-compose
+#           sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+#       - name: Run Docker Compose
+#         run: |
+#               cd /home/ubuntu/actions-runner/_work/githubAction-CICD/githubAction-CICD
+#               sudo docker-compose down --remove-orphans
+#               sudo docker-compose up -d --build
 
