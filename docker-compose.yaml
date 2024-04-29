@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+  githubactioncicd:
+    container_name: githubactioncicd
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - .dockerignore=.dockerignore
+        - no-cache=true
+    volumes:
+      - ./:/usr/src/app # bind mount the current directory to the container so that we can see the changes in real time --> make shure to remove this when you are done with local else your ignore files wiil be addd to the container becasue i am bindmounting the current directory to the usr/src/app directory and when i addedor modify a file in the current directory it will be added to the container
+      - nodemodules:/usr/src/app/node_modules # this is volume for node_modules so that it persists even if the container is removed and dont install the node_modules again and again at every build
+    expose:
+      - "4500"
+    ports:
+      - "4500:4500"
+    command: npm run start
+    networks:
+      - githubactioncicd-network
+    restart: on-failure
+
+volumes:
+  nodemodules: # named volume for node_modules so that it persists even if the container is removed
+networks:
+  githubactioncicd-network:
