@@ -6,11 +6,6 @@ app.get('/', (req, res) => {
 })
 
 
-app.get('/abc', (req, res) => {
-    res.json('Welcome To CI/CD..gooi')
-})
-
-
 app.listen(4500, () => {
     console.log("info", `listening on port 4500`);
 })
