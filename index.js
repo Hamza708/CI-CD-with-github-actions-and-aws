@@ -1,8 +1,11 @@
 import app from "./src/middleware/appRouteMiddlewares.js";
+import moment from "moment"
 
 
 app.get('/', (req, res) => {
-    res.json('Welcome To CI/CD.......')
+
+    const currentDateTime = moment().format('MMMM Do YYYY, h:mm:ss a');
+    res.json(`Welcome To CI/CD......., Current Date and Time is ${currentDateTime}`);
 })
 
 
