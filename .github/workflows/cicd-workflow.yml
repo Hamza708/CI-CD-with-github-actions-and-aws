@@ -15,25 +15,6 @@ jobs:
         with:
           ref: development  # Specify the branch to clone
 
-      # Check if NPM packages changed
-      - name: Check if NPM packages changed
-        id: npm_changed
-        run: |
-          if [[ $(git status --porcelain) ]]; then
-            echo "::set-output name=npm_changed::NPM packages changed"
-          else
-            echo "::set-output name=npm_changed::No NPM packages changed"
-          fi
-
-      # Install NPM packages if NPM packages changed delete all docker containers volume and images docke system prune 
-      - name: Delete docker containers, volumes and images if NPM packages changed
-        if: steps.npm_changed.outputs.npm_changed == 'NPM packages changed'
-        run: |
-          sudo docker system prune --all --force --volumes
-          sudo rm -rf ./node_modules
-          sudo npm cache clean --force
-          sudo npm install --no-optional
-
       # Install Docker and Docker Compose if not installed
       - name: Install Docker if not installed
         if: steps.npm_changed.outputs.npm_changed == 'NPM packages changed'
