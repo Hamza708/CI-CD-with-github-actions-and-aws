@@ -1,4 +1,4 @@
-# EC2 GitHub Action with Docker Compose and Load Balancer / Auto Scaling Groups
+# Deploying Applications on EC2 Instances using GitHub Actions, Docker Compose, and Load Balancer / Auto Scaling Groups
 
 Welcome to the EC2 GitHub Action with Docker Compose and Load Balancer / Auto Scaling Groups project! This repository is designed to help you deploy your application on EC2 instances using Docker Compose, along with Load Balancer and Auto Scaling Groups for scalability and high availability. We've included GitHub Actions workflows to automate the deployment process, making it easier for you to manage your infrastructure.
 
