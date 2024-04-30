@@ -1,13 +1,13 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-1:470154842436:task-definition/nodejs-starter-task-defination:3",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:470154842436:task-definition/nodejs-starter-task-definations:1",
     "containerDefinitions": [
         {
-            "name": "nodejs-sratter",
-            "image": "470154842436.dkr.ecr.us-east-1.amazonaws.com/nodejs-starter:b5783f05b8ed7038e7a3a9942e2923ab568c09a4",
+            "name": "nodejs-starter",
+            "image": "470154842436.dkr.ecr.us-east-1.amazonaws.com/nodejs-starter",
             "cpu": 0,
             "portMappings": [
                 {
-                    "name": "nodejs-sratter-4500-tcp",
+                    "name": "nodejs-starter-4500-tcp",
                     "containerPort": 4500,
                     "hostPort": 4500,
                     "protocol": "tcp",
@@ -16,24 +16,28 @@
             ],
             "essential": true,
             "environment": [],
+            "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
+            "ulimits": [],
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-create-group": "true",
-                    "awslogs-group": "/ecs/nodejs-starter-task-defination",
+                    "awslogs-group": "/ecs/nodejs-starter-task-definations",
                     "awslogs-region": "us-east-1",
                     "awslogs-stream-prefix": "ecs"
-                }
+                },
+                "secretOptions": []
             },
             "systemControls": []
         }
     ],
-    "family": "nodejs-starter-task-defination",
+    "family": "nodejs-starter-task-definations",
+    "taskRoleArn": "arn:aws:iam::470154842436:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::470154842436:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 3,
+    "revision": 1,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -48,6 +52,9 @@
         },
         {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
         },
         {
             "name": "ecs.capability.execution-role-ecr-pull"
@@ -76,7 +83,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2024-04-30T12:54:05.036Z",
+    "registeredAt": "2024-04-30T13:33:33.053Z",
     "registeredBy": "arn:aws:iam::470154842436:root",
     "tags": []
 }
