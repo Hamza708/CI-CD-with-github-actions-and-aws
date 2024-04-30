@@ -1,4 +1,4 @@
-# Deploying Node.js Applications with AWS Fargate ECS and ECR
+# Deploying Node.js Applications with AWS Fargate ECS, ECR, and GitHub Actions
 
 Welcome to the AWS Fargate ECS and ECR Node.js Project repository! This project is designed to help you deploy your Node.js application seamlessly on AWS Fargate using ECS (Elastic Container Service) and ECR (Elastic Container Registry). We've included GitHub Actions workflows to automate the build, push, and deployment processes, making it easier for you to manage your infrastructure.
 
