@@ -57,7 +57,7 @@ jobs:
 
       # Recreate nodemodules volume if NPM packages changed
       - name: Recreate nodemodules volume if NPM packages changed
-        if: env.PACKAGE_CHANGED == 'No changes detected'
+        if: env.PACKAGE_CHANGED == 'NPM packages changed'
         run: |
           sudo docker volume rm githubaction-cicd_nodemodules
 
