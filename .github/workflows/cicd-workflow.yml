@@ -3,7 +3,7 @@ name: Deploy to EC2 and Run Docker Compose
 on:
   push:
     branches:
-      - development  # Adjust this to the branch you want to trigger on
+      - EC2-LB-ASG # Adjust this to the branch you want to trigger on
 
 jobs:
   deploy:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          ref: development  # Specify the branch to clone
+          ref: EC2-LB-ASG # Specify the branch to clone
 
       # Install Docker and Docker Compose if not installed
       - name: Check if Docker is installed
@@ -66,4 +66,4 @@ jobs:
         run: |
           cd /home/ubuntu/actions-runner/_work/githubAction-CICD/githubAction-CICD
           sudo docker compose down --remove-orphans
-          sudo docker compose up -d 
+          sudo docker compose up -d
