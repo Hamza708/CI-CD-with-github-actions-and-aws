@@ -18,3 +18,9 @@ RUN npm install
 #To bundle your app's source code inside the Docker image, use the COPY instruction:
 # Bundle app source
 COPY . .
+
+EXPOSE 4500
+
+CMD [ "npm", "run", "start" ]
+
+
